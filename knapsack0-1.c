@@ -20,6 +20,15 @@ int knapsack_input(int n, int capacity, int weights[], int values[]) {
             }
         }
     }
+    printf("The DP matrix is : \n");
+    for(int i=0;i<=n;i++)
+    {
+        for(int j=0;j<=capacity;j++)
+        {
+            printf("%d  ",dp[i][j]);
+        }
+        printf("\n");
+    }
     return dp[n][capacity];
 }
 
