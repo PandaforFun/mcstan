@@ -1,107 +1,72 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <limits.h>
- 
-struct Edge
-{
-    int source, destination, weight;
+
+#define INFINITY 999999
+
+struct Edge {
+    int source;
+    int destination;
+    int weight;
 };
-struct Graph
-{
-    int V, E;
- 
-    struct Edge* edge;
-};
- 
-struct Graph* createGraph(int V, int E)
-{
-    struct Graph* graph = (struct Graph*) malloc( sizeof(struct Graph));
-    graph->V = V; 
- 
-    graph->E = E;
- 
-    graph->edge = (struct Edge*) malloc( graph->E * sizeof( struct Edge ) );
-    return graph;
-}
- 
-void FinalSolution(int dist[], int n)
-{
-    printf("\nVertex\tDistance from Source Vertex\n");
-    int i;
- 
-    for (i = 0; i < n; ++i){
-printf("%d \t\t %d\n", i, dist[i]);
-}
-}
- 
-void BellmanFord(struct Graph* graph, int source)
-{
-    int V = graph->V;
- 
-    int E = graph->E;
- 
-    int StoreDistance[V];
- 
-    int i,j;
-    for (i = 0; i < V; i++)
-        StoreDistance[i] = INT_MAX;
- 
-    StoreDistance[source] = 0;
-    for (i = 1; i <= V-1; i++)
-    {
-        for (j = 0; j < E; j++)
-        {
-            int u = graph->edge[j].source;
- 
-            int v = graph->edge[j].destination;
- 
-            int weight = graph->edge[j].weight;
- 
-            if (StoreDistance[u] + weight < StoreDistance[v])
-                StoreDistance[v] = StoreDistance[u] + weight;
+
+void bellmanFord(int numVertices, int source, struct Edge* edges, int numEdges) {
+    int* distance = (int*)malloc(numVertices * sizeof(int));
+    for (int i = 0; i < numVertices; i++) {
+        distance[i] = INFINITY;
+    }
+    distance[source] = 0;
+
+    // Relax edges now one by one
+    for (int i = 0; i < numVertices - 1; i++) {
+        for (int j = 0; j < numEdges; j++) {
+            int u = edges[j].source;
+            int v = edges[j].destination;
+            int w = edges[j].weight;
+
+            if (distance[u] != INFINITY && distance[u] + w < distance[v]) {
+                distance[v] = distance[u] + w;
+            }
         }
     }
-    for (i = 0; i < E; i++)
-    {
-        int u = graph->edge[i].source;
- 
-        int v = graph->edge[i].destination;
- 
-        int weight = graph->edge[i].weight;
- 
-        if (StoreDistance[u] + weight < StoreDistance[v])
-            printf("This graph contains negative edge cycle\n");
+
+    // Check for negative cycles
+    for (int i = 0; i < numEdges; i++) {
+        int u = edges[i].source;
+        int v = edges[i].destination;
+        int w = edges[i].weight;
+
+        if (distance[u] != INFINITY && distance[u] + w < distance[v]) {
+            printf("Negative cycle detected.\n");
+            free(distance);
+            return;
+        }
     }
- 
-    FinalSolution(StoreDistance, V);
- 
-    return;
+
+    // Print the shortest distances from the source
+    printf("Vertex\tDistance from Source\n");
+    for (int i = 0; i < numVertices; i++) {
+        printf("%d\t%d\n", i, distance[i]);
+    }
+
+    free(distance);
 }
- 
-int main()
-{
-    int V,E,S;  
- 
-printf("Enter number of vertices in graph\n");
-    scanf("%d",&V);
- 
-printf("Enter number of edges in graph\n");
-    scanf("%d",&E);
- 
-printf("Enter your source vertex number\n");
-scanf("%d",&S);
- 
-    struct Graph* graph = createGraph(V, E);    
- 
-    int i;
-    for(i=0;i<E;i++){
-        printf("\nEnter edge %d properties Initial, Final, weight respectively\n",i+1);
-        scanf("%d",&graph->edge[i].source);
-        scanf("%d",&graph->edge[i].destination);
-        scanf("%d",&graph->edge[i].weight);
-    }
- 
-    BellmanFord(graph, S);
+
+int main() {
+    int numVertices = 5;
+    int numEdges = 8;
+    struct Edge edges[] = {
+        {0, 1, 6},
+        {0, 2, 7},
+        {1, 2, 8},
+        {1, 3, 5},
+        {1, 4, -4},
+        {2, 3, -3},
+        {2, 4, 9},
+        {3, 1, -2}
+    };
+    int source = 0;
+
+    bellmanFord(numVertices, source, edges, numEdges);
+
     return 0;
 }
